@@ -14,19 +14,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 # -----------------------------
-# Alembic migration
-# -----------------------------
-
-@pytest.fixture(scope="session", autouse=True)
-def run_migrations():
-
-    alembic_cfg = Config("alembic.ini")
-    alembic_cfg.set_main_option("sqlalchemy.url", DATABASE_URL)
-
-    command.upgrade(alembic_cfg, "head")
-
-
-# -----------------------------
 # DB session
 # -----------------------------
 
