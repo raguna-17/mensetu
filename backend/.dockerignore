@@ -1,0 +1,35 @@
+# === Git ===
+.git
+.gitignore
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+*.sqlite3
+*.log
+
+# === Environment ===
+.env
+.env.*
+.venv/
+venv/
+
+# === Node / Frontend ===
+node_modules/
+dist/
+
+# === IDE / Editor ===
+.vscode/
+.idea/
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Docs / Misc ===
+README.md
