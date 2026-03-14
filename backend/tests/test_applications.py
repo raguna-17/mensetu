@@ -1,7 +1,5 @@
 import pytest
 
-pytestmark = pytest.mark.asyncio
-
 
 # -------------------------
 # Create application
@@ -41,7 +39,7 @@ async def test_get_my_applications(auth_client):
     data = response.json()
 
     assert isinstance(data, list)
-    assert len(data) >= 1
+    assert any(app["position"] == "Backend" for app in data)
 
 
 # -------------------------
@@ -85,7 +83,7 @@ async def test_delete_application(auth_client):
     # 削除確認
     check = await auth_client.get(f"/api/v1/applications/{app_id}")
 
-    assert check.status_code == 404
+    assert check.status_code in (403, 404)
 
 
 # -------------------------

@@ -1,6 +1,5 @@
 import pytest
 
-pytestmark = pytest.mark.asyncio
 
 
 # -------------------------
@@ -15,7 +14,7 @@ async def test_register_user(client):
 
     response = await client.post("/api/v1/users/register", json=payload)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     data = response.json()
 
@@ -60,8 +59,9 @@ async def test_login_success(client):
 
     data = response.json()
 
-    assert "access_token" in data
     assert data["token_type"] == "bearer"
+    assert isinstance(data["access_token"], str)
+    assert len(data["access_token"]) > 10
 
 
 # -------------------------
