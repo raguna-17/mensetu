@@ -3,17 +3,12 @@ import pytest
 import pytest_asyncio
 
 from httpx import AsyncClient, ASGITransport
-
 from alembic import command
 from alembic.config import Config
 
 from app.main import app
 from app.db import get_db, async_session
 
-
-# -----------------------------
-# DATABASE
-# -----------------------------
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -44,7 +39,7 @@ async def db_session():
 
 
 # -----------------------------
-# Dependency override
+# Test client
 # -----------------------------
 
 @pytest_asyncio.fixture
@@ -59,7 +54,7 @@ async def client(db_session):
 
     async with AsyncClient(
         transport=transport,
-        base_url="http://test",
+        base_url="http://test"
     ) as ac:
         yield ac
 
@@ -75,7 +70,7 @@ async def auth_client(client):
 
     user = {
         "email": "test@example.com",
-        "password": "password123",
+        "password": "password123"
     }
 
     await client.post("/api/v1/users/register", json=user)
@@ -84,8 +79,8 @@ async def auth_client(client):
 
     token = res.json()["access_token"]
 
-    client.headers.update(
-        {"Authorization": f"Bearer {token}"}
-    )
+    client.headers.update({
+        "Authorization": f"Bearer {token}"
+    })
 
     return client
