@@ -7,7 +7,7 @@ import os
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # 非同期エンジン作成
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=False)
 
 # 非同期セッション作成
 async_session = async_sessionmaker(
