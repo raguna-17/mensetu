@@ -12,20 +12,15 @@ from .db import async_session , get_db
 from .models import User
 from .schemas import UserCreate, UserRead, UserLogin
 
-# -------------------------
-# 設定
-# -------------------------
+
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 JWT_ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60  # 1時間
+ACCESS_TOKEN_EXPIRE_MINUTES = 60  
 
 ph = PasswordHasher()
 
 
 
-# -------------------------
-# JWT生成
-# -------------------------
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
@@ -35,12 +30,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 
-# -------------------------
-# JWT検証・現在のユーザー取得
-# -------------------------
+
+
 from fastapi.security import OAuth2PasswordBearer
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)) -> User:
     credentials_exception = HTTPException(

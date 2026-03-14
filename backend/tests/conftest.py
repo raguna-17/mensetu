@@ -1,57 +1,44 @@
 import os
 import pytest
-import pytest_asyncio
-
-from httpx import AsyncClient, ASGITransport
-
-from alembic import command
-from alembic.config import Config
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 
 from app.main import app
-from app.db import get_db, get_sessionmaker
+from app.db import get_db
+from app.models import User, Company, Application
+from app.auth import create_access_token
+from argon2 import PasswordHasher
 
-
-# -----------------------------
-# DATABASE
-# -----------------------------
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+engine = create_async_engine(DATABASE_URL)
 
-# -----------------------------
-# Run Alembic migration
-# -----------------------------
+TestingSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
 
-@pytest.fixture(scope="session", autouse=True)
-def run_migrations():
-
-    sync_url = DATABASE_URL.replace("+asyncpg", "")
-
-    alembic_cfg = Config("alembic.ini")
-    alembic_cfg.set_main_option("sqlalchemy.url", sync_url)
-
-    command.upgrade(alembic_cfg, "head")
+ph = PasswordHasher()
 
 
-# -----------------------------
-# DB Session
-# -----------------------------
-
-@pytest_asyncio.fixture
+@pytest.fixture
 async def db_session():
+    async with engine.connect() as connection:
+        transaction = await connection.begin()
 
-    sessionmaker = get_sessionmaker()
+        session = TestingSessionLocal(bind=connection)
 
-    async with sessionmaker() as session:
-        yield session
-        await session.rollback()
+        try:
+            yield session
+        finally:
+            await session.close()
+            await transaction.rollback()
 
 
-# -----------------------------
-# Test client
-# -----------------------------
-
-@pytest_asyncio.fixture
+@pytest.fixture
 async def client(db_session):
 
     async def override_get_db():
@@ -59,37 +46,63 @@ async def client(db_session):
 
     app.dependency_overrides[get_db] = override_get_db
 
-    transport = ASGITransport(app=app)
-
-    async with AsyncClient(
-        transport=transport,
-        base_url="http://test",
-    ) as ac:
+    async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
 
     app.dependency_overrides.clear()
 
 
-# -----------------------------
-# Auth client
-# -----------------------------
+@pytest.fixture
+async def test_user(db_session):
 
-@pytest_asyncio.fixture
-async def auth_client(client):
-
-    user = {
-        "email": "test@example.com",
-        "password": "password123",
-    }
-
-    await client.post("/api/v1/users/register", json=user)
-
-    res = await client.post("/api/v1/users/login", json=user)
-
-    token = res.json()["access_token"]
-
-    client.headers.update(
-        {"Authorization": f"Bearer {token}"}
+    user = User(
+        email="test@example.com",
+        hashed_password=ph.hash("password"),
     )
 
-    return client
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    return user
+
+
+@pytest.fixture
+async def test_company(db_session):
+
+    company = Company(
+        name="Test Company",
+        industry="IT"
+    )
+
+    db_session.add(company)
+    await db_session.commit()
+    await db_session.refresh(company)
+
+    return company
+
+
+@pytest.fixture
+async def test_application(db_session, test_user, test_company):
+
+    application = Application(
+        position="Backend Engineer",
+        user_id=test_user.id,
+        company_id=test_company.id
+    )
+
+    db_session.add(application)
+    await db_session.commit()
+    await db_session.refresh(application)
+
+    return application
+
+
+@pytest.fixture
+def auth_headers(test_user):
+
+    token = create_access_token({"sub": str(test_user.id)})
+
+    return {
+        "Authorization": f"Bearer {token}"
+    }

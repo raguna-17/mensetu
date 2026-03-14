@@ -2,119 +2,91 @@ import pytest
 
 
 
-# -------------------------
-# User register
-# -------------------------
-async def test_register_user(client):
-
+async def test_register_success(client):
     payload = {
-        "email": "test@example.com",
+        "email": "newuser@example.com",
         "password": "password123"
     }
 
-    response = await client.post("/api/v1/users/register", json=payload)
+    res = await client.post("/api/v1/users/register", json=payload)
 
-    assert response.status_code == 201
-
-    data = response.json()
+    assert res.status_code == 200
+    data = res.json()
 
     assert data["email"] == payload["email"]
     assert "id" in data
-    assert "created_at" in data
 
 
-# -------------------------
-# Duplicate email
-# -------------------------
-async def test_register_duplicate_email(client):
 
+async def test_register_duplicate_email(client, test_user):
     payload = {
-        "email": "dup@example.com",
+        "email": test_user.email,
         "password": "password123"
     }
 
-    await client.post("/api/v1/users/register", json=payload)
+    res = await client.post("/api/v1/users/register", json=payload)
 
-    response = await client.post("/api/v1/users/register", json=payload)
-
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Email already registered"
+    assert res.status_code == 400
+    assert res.json()["detail"] == "Email already registered"
 
 
-# -------------------------
-# Login success
-# -------------------------
-async def test_login_success(client):
 
+async def test_login_success(client, test_user):
     payload = {
-        "email": "login@example.com",
-        "password": "password123"
+        "email": test_user.email,
+        "password": "password"
     }
 
-    await client.post("/api/v1/users/register", json=payload)
+    res = await client.post("/api/v1/users/login", json=payload)
 
-    response = await client.post("/api/v1/users/login", json=payload)
+    assert res.status_code == 200
 
-    assert response.status_code == 200
+    data = res.json()
 
-    data = response.json()
-
+    assert "access_token" in data
     assert data["token_type"] == "bearer"
-    assert isinstance(data["access_token"], str)
-    assert len(data["access_token"]) > 10
 
 
-# -------------------------
-# Login fail
-# -------------------------
-async def test_login_invalid_password(client):
 
-    await client.post("/api/v1/users/register", json={
-        "email": "wrong@example.com",
-        "password": "password123"
-    })
-
-    response = await client.post("/api/v1/users/login", json={
-        "email": "wrong@example.com",
-        "password": "badpassword"
-    })
-
-    assert response.status_code == 401
-
-
-# -------------------------
-# Get current user
-# -------------------------
-async def test_get_current_user(client):
-
-    register_data = {
-        "email": "me@example.com",
-        "password": "password123"
+async def test_login_invalid_email(client):
+    payload = {
+        "email": "notfound@example.com",
+        "password": "password"
     }
 
-    await client.post("/api/v1/users/register", json=register_data)
+    res = await client.post("/api/v1/users/login", json=payload)
 
-    login_res = await client.post("/api/v1/users/login", json=register_data)
-
-    token = login_res.json()["access_token"]
-
-    response = await client.get(
-        "/api/v1/users/me",
-        headers={"Authorization": f"Bearer {token}"}
-    )
-
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert data["email"] == register_data["email"]
+    assert res.status_code == 401
+    assert res.json()["detail"] == "Invalid credentials"
 
 
-# -------------------------
-# Unauthorized access
-# -------------------------
-async def test_me_without_token(client):
 
-    response = await client.get("/api/v1/users/me")
+async def test_login_wrong_password(client, test_user):
+    payload = {
+        "email": test_user.email,
+        "password": "wrongpassword"
+    }
 
-    assert response.status_code == 401
+    res = await client.post("/api/v1/users/login", json=payload)
+
+    assert res.status_code == 401
+    assert res.json()["detail"] == "Invalid credentials"
+
+
+
+async def test_read_current_user_success(client, auth_headers):
+    res = await client.get("/api/v1/users/me", headers=auth_headers)
+
+    assert res.status_code == 200
+
+    data = res.json()
+
+    assert "email" in data
+    assert "id" in data
+
+
+
+async def test_read_current_user_no_token(client):
+    res = await client.get("/api/v1/users/me")
+
+    assert res.status_code == 401

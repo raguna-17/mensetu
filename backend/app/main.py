@@ -6,7 +6,6 @@ from app.routers import users, companies, applications, notes
 app = FastAPI()
 
 
-# ルータ登録
 app.include_router(users.router)
 app.include_router(companies.router)
 app.include_router(applications.router)
