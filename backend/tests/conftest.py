@@ -18,7 +18,10 @@ ph = PasswordHasher()
 
 @pytest.fixture
 async def engine():
-    engine = create_async_engine(DATABASE_URL)
+    engine = create_async_engine(
+    DATABASE_URL,
+    future=True
+    )
     try:
         yield engine
     finally:
@@ -44,7 +47,7 @@ async def db_session(engine):
             await session.close()
             await transaction.rollback()
 
-            
+
 @pytest.fixture
 async def db_session():
     async with engine.connect() as connection:
