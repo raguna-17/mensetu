@@ -7,4 +7,3 @@ argon2-cffi
 pydantic
 pydantic[email]
 alembic
-pytest-asyncio
