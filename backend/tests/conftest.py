@@ -10,21 +10,8 @@ from app.models import User, Company, Application
 from app.auth import create_access_token
 from argon2 import PasswordHasher
 
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
 ph = PasswordHasher()
 
-
-@pytest.fixture
-async def engine():
-    engine = create_async_engine(
-    DATABASE_URL
-    )
-    try:
-        yield engine
-    finally:
-        await engine.dispose()
 
 
 @pytest.fixture
@@ -47,7 +34,8 @@ async def db_session(engine):
             await transaction.rollback()
 
 
-
+@pytest.fixture(scope="session")
+async def engine():
 
 @pytest.fixture
 async def client(db_session):
