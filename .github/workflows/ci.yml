@@ -45,8 +45,6 @@ jobs:
           pip install -r requirements.txt
           pip install  pytest-cov pytest-asyncio httpx
 
-      - name: Wait for database
-        run: timeout 30 bash -c 'until pg_isready -h localhost -U testuser; do sleep 1; done'
 
       - name: Run migrations
         run: alembic upgrade head
