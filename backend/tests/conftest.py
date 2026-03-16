@@ -13,33 +13,35 @@ from argon2 import PasswordHasher
 ph = PasswordHasher()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-
-AsyncSessionLocal = sessionmaker(
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
-
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def engine():
-    engine = create_async_engine(DATABASE_URL)
+    engine = create_async_engine(
+    DATABASE_URL
+    )
     try:
         yield engine
     finally:
         await engine.dispose()
-
 
 @pytest.fixture
 async def db_session(engine):
     async with engine.connect() as connection:
         transaction = await connection.begin()
 
-        session = AsyncSessionLocal(bind=connection)
+        TestingSessionLocal = sessionmaker(
+            bind=connection,
+            class_=AsyncSession,
+            expire_on_commit=False,
+        )
+
+        session = TestingSessionLocal()
 
         try:
             yield session
         finally:
             await session.close()
             await transaction.rollback()
+
 
 
 
