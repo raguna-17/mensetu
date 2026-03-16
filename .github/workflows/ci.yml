@@ -43,21 +43,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install  pytest-cov pytest-asyncio 
+          pip install  pytest-cov pytest-asyncio httpx
 
-      - name: Wait for database (max 30s)
-        run: |
-          echo "Waiting for Postgres..."
-          SECONDS=0
-          until pg_isready -h localhost -U testuser; do
-            if [ $SECONDS -ge 30 ]; then
-              echo "Timeout reached: Postgres is still unavailable"
-              exit 1
-            fi
-            echo "Postgres unavailable - sleeping"
-            sleep 1
-          done
-          echo "Postgres is up - continuing"
+      - name: Wait for database
+        run: timeout 30 bash -c 'until pg_isready -h localhost -U testuser; do sleep 1; done'
 
       - name: Run migrations
         run: alembic upgrade head
