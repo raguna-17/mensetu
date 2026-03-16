@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install  pytest-cov pytest-asyncio httpx
+          pip install  pytest-cov  httpx
 
 
       - name: Run migrations
