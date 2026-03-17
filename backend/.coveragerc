@@ -1,0 +1,7 @@
+[run]
+omit =
+    app/routers/*
+
+[report]
+show_missing = True
+precision = 1
