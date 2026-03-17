@@ -41,7 +41,8 @@ async def login(user_in: UserLogin, db: AsyncSession = Depends(get_db)):
     token = create_access_token({"sub": str(user.id)})
     return {"access_token": token, "token_type": "bearer"}
 
-# 現在のユーザー取得
+# 現在のユーザー取征E
 @router.get("/me", response_model=UserRead)
 async def read_current_user(current_user: User = Depends(get_current_user)):
     return current_user
+

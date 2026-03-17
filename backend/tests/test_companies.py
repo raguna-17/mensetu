@@ -3,7 +3,6 @@ import pytest
 BASE_URL = "/api/v1/companies"
 
 
-@pytest.mark.asyncio
 async def test_get_companies(client, test_company):
     res = await client.get(BASE_URL + "/")
 
@@ -14,7 +13,6 @@ async def test_get_companies(client, test_company):
     assert data[0]["name"] == "Test Company"
 
 
-@pytest.mark.asyncio
 async def test_get_company_detail(client, test_company):
     res = await client.get(f"{BASE_URL}/{test_company.id}")
 
@@ -24,7 +22,6 @@ async def test_get_company_detail(client, test_company):
     assert data["name"] == "Test Company"
 
 
-@pytest.mark.asyncio
 async def test_get_company_not_found(client):
     res = await client.get(f"{BASE_URL}/9999")
 
@@ -32,7 +29,6 @@ async def test_get_company_not_found(client):
     assert res.json()["detail"] == "Company not found"
 
 
-@pytest.mark.asyncio
 async def test_create_company(client):
     payload = {
         "name": "New Company",
@@ -47,9 +43,8 @@ async def test_create_company(client):
     assert data["industry"] == "Finance"
 
 
-@pytest.mark.asyncio
 async def test_create_company_invalid(client):
-    # name必須なので欠けてるパターン
+    # name忁E��なので欠けてるパターン
     payload = {
         "industry": "IT"
     }
@@ -59,19 +54,18 @@ async def test_create_company_invalid(client):
     assert res.status_code == 422
 
 
-@pytest.mark.asyncio
 async def test_delete_company(client, test_company):
     res = await client.delete(f"{BASE_URL}/{test_company.id}")
 
     assert res.status_code == 204
 
-    # 削除確認
+    # 削除確誁E
     res = await client.get(f"{BASE_URL}/{test_company.id}")
     assert res.status_code == 404
 
 
-@pytest.mark.asyncio
 async def test_delete_company_not_found(client):
     res = await client.delete(f"{BASE_URL}/9999")
 
     assert res.status_code == 404
+

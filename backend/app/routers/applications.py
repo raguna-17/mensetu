@@ -49,3 +49,4 @@ async def delete_application(application_id: int,
     await db.delete(app)
     await db.commit()
     return None
+

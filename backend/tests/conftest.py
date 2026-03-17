@@ -118,3 +118,4 @@ async def auth_headers(test_user):
     return {
         "Authorization": f"Bearer {token}"
     }
+

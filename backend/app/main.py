@@ -11,3 +11,4 @@ app.include_router(companies.router)
 app.include_router(applications.router)
 app.include_router(notes.router)
 
+

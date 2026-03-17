@@ -63,3 +63,4 @@ class Note(Base):
     
     application_id = Column(Integer, ForeignKey("applications.id"))
     application = relationship("Application", back_populates="notes", lazy="selectin")
+

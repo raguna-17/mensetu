@@ -22,7 +22,7 @@ async def get_company(company_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Company not found")
     return company
 
-# 追加: 会社作成
+# 追加: 会社作�E
 @router.post("/", response_model=CompanyRead, status_code=status.HTTP_201_CREATED)
 async def create_company(company: CompanyCreate, db: AsyncSession = Depends(get_db)):
     new_company = Company(**company.dict())
@@ -41,3 +41,4 @@ async def delete_company(company_id: int, db: AsyncSession = Depends(get_db)):
     await db.delete(company)
     await db.commit()
     return None
+

@@ -90,3 +90,4 @@ async def test_read_current_user_no_token(client):
     res = await client.get("/api/v1/users/me")
 
     assert res.status_code == 401
+
