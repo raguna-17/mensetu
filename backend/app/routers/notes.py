@@ -11,10 +11,7 @@ from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/api/v1/notes", tags=["notes"])
 
-# 入力用スキーマ
-class NoteCreate(BaseModel):
-    content: str
-    application_id: int
+
 
 @router.get("/", response_model=List[NoteRead])
 async def get_my_notes(current_user: User = Depends(get_current_user),

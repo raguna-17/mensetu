@@ -38,6 +38,12 @@ class ApplicationBase(BaseModel):
 class ApplicationCreate(ApplicationBase):
     pass  # 入力用には追加フィールドなし。必要なら notes の初期値もここで指定可能
 
+
+# 入力用スキーマ
+class NoteCreate(BaseModel):
+    content: str
+    application_id: int
+    
 class NoteRead(BaseModel):
     id: int
     content: str
