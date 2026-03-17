@@ -5,7 +5,7 @@ from typing import List
 
 from app.db import get_db
 from app.models import Note, Application, User
-from app.schemas import NoteRead, ApplicationRead
+from app.schemas import NoteRead, ApplicationRead,NoteCreate
 from app.auth import get_current_user
 from pydantic import BaseModel, Field
 
