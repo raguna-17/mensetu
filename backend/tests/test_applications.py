@@ -75,3 +75,40 @@ async def test_delete_application_not_found(client, auth_headers):
     res = await client.delete(f"{BASE_URL}/9999", headers=auth_headers)
 
     assert res.status_code == 404
+
+
+
+
+
+
+@pytest.mark.asyncio
+async def test_invalid_token(client):
+    headers = {"Authorization": "Bearer invalid.token"}
+
+    res = await client.get("/api/v1/applications/", headers=headers)
+
+    assert res.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_token_without_sub(client):
+    from app.auth import create_access_token
+
+    token = create_access_token({})
+    headers = {"Authorization": f"Bearer {token}"}
+
+    res = await client.get("/api/v1/applications/", headers=headers)
+
+    assert res.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_token_user_not_found(client):
+    from app.auth import create_access_token
+
+    token = create_access_token({"sub": "9999"})
+    headers = {"Authorization": f"Bearer {token}"}
+
+    res = await client.get("/api/v1/applications/", headers=headers)
+
+    assert res.status_code == 401
