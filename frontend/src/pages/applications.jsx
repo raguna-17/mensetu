@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { getApplications, createApplication, deleteApplication } from '../api';
+import {
+    getApplications,
+    createApplication,
+    deleteApplication,
+    getCompanies
+} from '../api';
 import { Link } from 'react-router-dom';
 
 function Applications() {
     const [applications, setApplications] = useState([]);
+    const [companies, setCompanies] = useState([]);
+
     const [position, setPosition] = useState('');
     const [status, setStatus] = useState('applied');
+    const [companyId, setCompanyId] = useState('');
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -21,8 +30,20 @@ function Applications() {
         }
     };
 
+    const fetchCompanies = async () => {
+        try {
+            const data = await getCompanies();
+            setCompanies(data);
+
+            { companies.length === 0 && <p>会社を先に登録してください</p> }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
         fetchApplications();
+        fetchCompanies();
     }, []);
 
     const handleCreate = async (e) => {
@@ -34,10 +55,16 @@ function Applications() {
             return;
         }
 
+        if (!companyId) {
+            setError('会社を選択してください');
+            return;
+        }
+
         try {
             await createApplication({
                 position,
-                status
+                status,
+                company_id: Number(companyId)
             });
 
             setPosition('');
@@ -66,7 +93,8 @@ function Applications() {
     return (
         <div className="applications-container">
             <h2>応募一覧</h2>
-            <Link to="/">← ダッシュボードに戻る</Link><Link to="/">← ダッシュボードに戻る</Link>
+            <Link to="/">← ダッシュボードに戻る</Link>
+
             {/* 作成フォーム */}
             <form onSubmit={handleCreate}>
                 <input
@@ -75,6 +103,14 @@ function Applications() {
                     value={position}
                     onChange={(e) => setPosition(e.target.value)}
                 />
+
+                <select value={companyId} onChange={(e) => setCompanyId(e.target.value)}>
+                    {companies.map(c => (
+                        <option key={c.id} value={c.id}>
+                            {c.name}
+                        </option>
+                    ))}
+                </select>
 
                 <select value={status} onChange={(e) => setStatus(e.target.value)}>
                     <option value="applied">応募済み</option>
