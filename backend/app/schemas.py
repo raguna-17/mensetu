@@ -50,6 +50,7 @@ class NoteCreate(BaseModel):
 class NoteRead(BaseModel):
     id: int
     content: str
+    application_id: int
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -68,7 +69,7 @@ class ApplicationBase(BaseModel):
 class ApplicationCreate(BaseModel):
     position: str = Field(max_length=100)
     company_id: int
-
+    status: ApplicationStatus = ApplicationStatus.APPLIED
 
 class ApplicationRead(ApplicationBase):
     id: int

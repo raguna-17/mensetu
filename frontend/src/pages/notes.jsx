@@ -102,14 +102,20 @@ function Notes() {
 
             {/* 一覧 */}
             <ul>
-                {notes.map(note => (
-                    <li key={note.id}>
-                        {note.content}
-                        <button onClick={() => handleDelete(note.id)}>
-                            削除
-                        </button>
-                    </li>
-                ))}
+                {notes.map(note => {
+                    // applicationId からポジション名を取得
+                    const app = applications.find(a => a.id === note.application_id);
+                    const position = app ? app.position : "不明";
+
+                    return (
+                        <li key={note.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span>
+                                {note.content} <strong>({position})</strong>
+                            </span>
+                            <button onClick={() => handleDelete(note.id)}>削除</button>
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );
