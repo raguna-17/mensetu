@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from argon2 import PasswordHasher
 from jose import jwt
+from argon2.exceptions import VerifyMismatchError
 
 from app.db import get_db
 from app.models import User
@@ -35,7 +36,7 @@ async def login(user_in: UserLogin, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     try:
         ph.verify(user.hashed_password, user_in.password)
-    except:
+    except VerifyMismatchError:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": str(user.id)})
