@@ -5,15 +5,16 @@
 ---
 
 ## デモ
-- バックエンド: [https://mensetu-bakku.onrender.com](https://mensetu-bakku.onrender.com)  
-- フロントエンド: [https://mensetu-furonto.onrender.com](https://mensetu-furonto.onrender.com)  
+- バックエンド: [https://mensetu-bakku.onrender.com]  
+- フロントエンド: [https://mensetu-furonto.onrender.com]
+- API ドキュメント: [https://mensetu-bakku.onrender.com/docs]
 
 ![alt text](image-2.png)
 ![alt text](image.png)
 ![alt text](image-1.png)
 
-## ドキュメント
-- API ドキュメント: [https://mensetu-docs.example.com](https://mensetu-docs.example.com)  
+
+ 
 
 ### バックエンド
 - Python 3.12
