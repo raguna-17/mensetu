@@ -1,17 +1,24 @@
+# ----------------------
 # ベースイメージ
+# ----------------------
 FROM python:3.12-slim
 
 # 作業ディレクトリ
 WORKDIR /code
 
-# システム依存ライブラリ
-RUN apt-get update && apt-get install -y build-essential libpq-dev && rm -rf /var/lib/apt/lists/*
+# 必要パッケージインストール
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# 依存パッケージコピー & インストール
+# 依存関係コピーとインストール
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ソースコピー
+# アプリコピー
 COPY . .
 
+
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
