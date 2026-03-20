@@ -56,7 +56,7 @@ function Dashboard() {
     return (
         <div className="dashboard-container">
             <div className="dashboard-header">
-                <h2>ようこそ、{username}さん</h2>
+                <h2>ようこそ</h2>
                 <button onClick={handleLogout}>ログアウト</button>
             </div>
 
